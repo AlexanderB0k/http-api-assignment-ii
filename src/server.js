@@ -10,6 +10,7 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 const urlStruct = {
   '/': htmlHandler.getIndexResponse,
   '/style.css': htmlHandler.getCSSResponse,
+  '/getUsers': responseHandler.getUsers,
 };
 
 // function to handle requests
@@ -22,7 +23,7 @@ const onRequest = (request, response) => {
   if (urlStruct[parsedUrl.pathname]) {
     return urlStruct[parsedUrl.pathname](request, response);
   }
-  
+
 };
 
 // start server
