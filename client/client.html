@@ -5,6 +5,117 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script>
+    const handleResponse = async (response) => {
+      const content = document.querySelector('#content');
+
+      switch(response.status) {
+        case 200:
+          content.innerHTML = '<b>Success!</b>';
+          break;
+        case 201: 
+          content.innerHTML = '<b>Created</b>';
+          break;
+        case 400:
+          content.innerHTML = '<b>Bad Request!</b>';
+          break;
+        case 404:
+          content.innerHTML = 'Not Found';
+          break;
+        default:
+          content.innerHTML = `Error code not implemented by client.`;
+      }    
+      
+    };
+
+    const sendPost = async (nameForm) => {
+
+      const name = nameForm.querySelector('#nameField').value;
+      const age = nameForm.querySelector('#ageField').value;
+
+      const urlField = nameForm.querySelector('#urlField').value;
+      const methodType = nameForm.querySelector('#methodSelect').value;
+
+      const url = nameForm.querySelector('action');
+      const method = nameForm.querySelector('method');
+
+      let formData = `name=${name}&age=${age}`;
+
+      if(urlField === '/getUsers') {
+        formData = JSON.stringify({ name, age });
+      }
+
+      const response = await fetch(url, {
+        method: method.toUpperCase(),
+        headers: {
+          'Content-Type': urlField,
+          'Content-Length': formData.length,
+          'Accept': 'application/json',
+        },
+        body: formData,
+      });
+
+      handleResponse(response);
+    }
+
+    const getUsers = async (userForm) => {
+
+        const urlField = userForm.querySelector('#urlField').value;
+        const methodType = userForm.querySelector('#methodSelect').value;
+        const content = document.querySelector('#content');
+
+          if (methodType === 'get' && urlField === '/getUsers') {
+              const obj = await response.json();
+              const jsonstring = JSON.stringify(obj);
+              content.innerHTML += `<p>${jsonstring}</p>`;
+            }
+
+           const response = await fetch(url, {
+            method: method.toUpperCase(),
+            headers: {
+              'Accept': 'application/json',
+            },
+          });
+
+        handleResponse(response);
+    }
+
+    //function to send request. This is marked as async since we will use await.
+    const requestUpdate = async (form) => {
+      
+      const url = userForm.querySelector('#urlField').value;
+      const method = userForm.querySelector('#methodSelect').value;
+      
+      let response = await fetch(url, {
+        method,
+        headers: {
+            'Accept': 'application/json'
+        },
+      });
+
+      handleResponse(response);
+    };
+
+    const init = () => {
+      const nameForm = document.querySelector('#nameForm');
+      const userForm = document.querySelector('#userForm');
+
+      const updateName = () => {
+        e.preventDefault();
+        requestUpdate(nameForm);
+        return false;
+      }
+
+      const updateUser = () =>{
+        e.preventDefault();
+        requestUpdate(userForm);
+        return false;
+      }
+
+      userForm.addEventListener('submit', updateUser);
+      nameForm.addEventListener('submit', updateName);
+    }
+
+
 
   </script>
 </head>
