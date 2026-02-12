@@ -6,7 +6,7 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
 
   <script>
-    const handleResponse = async (response) => {
+    const handleResponse = async (response, method) => {
       const content = document.querySelector('#content');
 
       switch (response.status) {
@@ -24,6 +24,17 @@
           break;
         default:
           content.innerHTML = `Error code not implemented by client.`;
+      }
+
+      if (method  === 'get') {
+        const obj = await response.json();
+        const jsonstring = JSON.stringify(obj);
+
+        content.innerHTML += `<p>${jsonstring} place</p>`;
+        console.log(jsonstring);
+      }
+      else{
+
       }
 
     };
@@ -68,16 +79,17 @@
         const obj = await response.json();
         const jsonstring = JSON.stringify(obj);
         content.innerHTML += `<p>${jsonstring}</p>`;
+        console.log(jsonstring);
       }
 
       const response = await fetch(url, {
-        method: method.toUpperCase(),
+        method: method,
         headers: {
           'Accept': 'application/json',
         },
       });
 
-      handleResponse(response);
+      handleResponse(response, methodType);
     }
 
     //function to send request. This is marked as async since we will use await.

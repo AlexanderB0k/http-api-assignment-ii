@@ -11,6 +11,8 @@ const urlStruct = {
   '/': htmlHandler.getIndexResponse,
   '/style.css': htmlHandler.getCSSResponse,
   '/getUsers': responseHandler.getUsers,
+  'notFound': responseHandler.notFound,
+  notFound: responseHandler.notFound,
 };
 
 // function to handle requests
@@ -22,6 +24,9 @@ const onRequest = (request, response) => {
   // Then we route based on the path that the user went to
   if (urlStruct[parsedUrl.pathname]) {
     return urlStruct[parsedUrl.pathname](request, response);
+  }
+  else {
+    return urlStruct.notFound(request, response);
   }
 
 };

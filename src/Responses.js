@@ -10,11 +10,20 @@ const respondJson = (request, response, status, object) => {
 
   response.writeHead(status, headers);
 
-  if (request.method !== 'HEAD') {
+  if (request.method !== 'HEAD' && status !== 204) {
     response.write(content);
   }
 
   response.end();
+}
+
+const notFound = (request, response) =>{
+  responseObject = {
+    message: "This page you are looking for was not found",
+    id: "notFound",
+  }
+
+  responseJson(request, response, 404, respondObject);
 }
 
 const getUsers = (request, response) => {
@@ -25,7 +34,12 @@ const getUsers = (request, response) => {
   respondJson(request, response, 200, responseObject);  
 };
 
-const updateUsers = (request, response, body) => {
+const addUsers = (request, response, body) => {
+  const responseData = {
+    message: 'Name and Age are both required',
+  }
+
+  
   users[newUser.createdAt] = newUser;
 
   const responseObject = {
@@ -38,5 +52,6 @@ const updateUsers = (request, response, body) => {
 
 module.exports = {
   getUsers,
-  updateUsers,
+  addUsers,
+  notFound,
 };
