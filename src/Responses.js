@@ -18,12 +18,12 @@ const respondJson = (request, response, status, object) => {
 }
 
 const notFound = (request, response) =>{
-  responseObject = {
+  const responseObject = {
     message: "This page you are looking for was not found",
     id: "notFound",
   }
 
-  responseJson(request, response, 404, respondObject);
+  respondJson(request, response, 404, responseObject);
 }
 
 const getUsers = (request, response) => {
@@ -34,24 +34,41 @@ const getUsers = (request, response) => {
   respondJson(request, response, 200, responseObject);  
 };
 
-const addUsers = (request, response, body) => {
-  const responseData = {
-    message: 'Name and Age are both required',
-  }
-
-  
-  users[newUser.createdAt] = newUser;
-
-  const responseObject = {
-    message: 'Created Successfully',
-    id: newUser.createdAt,
+const addUsers = (request, response) => {
+  // default json message
+  const responseJSON = {
+    message: 'Name and age are both required.',
   };
 
-  respondJson(request, response, 201, responseObject);
+  const {name, age} = request.body;
+
+  if (!name || !age) {
+    responseJSON.id = 'missingParams';
+    return respondJson(request, response, 400, responseJSON);
+  }
+
+  let responseCode = 204;
+
+  if (!users[name]) {
+    responseCode = 201;
+    users[name] = {
+      name: name,
+    };
+  }
+  
+  users[name].age = age;
+
+  if (responseCode === 201) {
+    responseJSON.message = 'Created \n Message: Created succesfully';
+    return respondJson(request, response, responseCode, responseJSON);
+  }
+
+  return respondJson(request, response, responseCode, {});
 };
+
 
 module.exports = {
   getUsers,
-  addUsers,
   notFound,
+  addUsers
 };

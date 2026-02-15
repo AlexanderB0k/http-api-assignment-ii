@@ -19,6 +19,9 @@
         case 400:
           content.innerHTML = '<b>Bad Request!</b>';
           break;
+        case 204: 
+          content.innerHTML = '<b>Updated (No Content)</b>';
+          break;
         case 404:
           content.innerHTML = 'Not Found';
           break;
@@ -30,7 +33,7 @@
         const obj = await response.json();
         const jsonstring = JSON.stringify(obj);
 
-        content.innerHTML += `<p>${jsonstring} place</p>`;
+        content.innerHTML += `<p>${jsonstring}</p>`;
         console.log(jsonstring);
       }
       else{
@@ -40,34 +43,25 @@
     };
 
     const sendPost = async (nameForm) => {
-
       const name = nameForm.querySelector('#nameField').value;
       const age = nameForm.querySelector('#ageField').value;
 
-      const urlField = nameForm.querySelector('#urlField').value;
-      const methodType = nameForm.querySelector('#methodSelect').value;
+      const url = nameForm.getAttribute('action');   
+      const method = nameForm.getAttribute('method'); 
 
-      const url = nameForm.querySelector('action');
-      const method = nameForm.querySelector('method');
-
-      let formData = `name=${name}&age=${age}`;
-
-      if (urlField === '/addUser') {
-        formData = JSON.stringify({ name, age });
-      }
+      const formData = `name=${encodeURIComponent(name)}&age=${encodeURIComponent(age)}`;
 
       const response = await fetch(url, {
         method: method.toUpperCase(),
         headers: {
-          'Content-Type': urlField,
-          'Content-Length': formData.length,
+          'Content-Type': 'application/x-www-form-urlencoded',
           'Accept': 'application/json',
         },
         body: formData,
       });
 
-      handleResponse(response);
-    }
+      handleResponse(response, 'post');
+    };
 
     const getUsers = async (userForm) => {
 
@@ -95,17 +89,17 @@
     //function to send request. This is marked as async since we will use await.
     const requestUpdate = async (form) => {
 
-      const url = userForm.querySelector('#urlField').value;
-      const method = userForm.querySelector('#methodSelect').value;
+      const url = form.querySelector('#urlField').value;
+      const method = form.querySelector('#methodSelect').value;
 
-      let response = await fetch(url, {
-        method,
-        headers: {
-          'Accept': 'application/json'
+      const response = await fetch(url, {
+      method: method,
+      headers: {
+        'Accept': 'application/json',
         },
       });
 
-      handleResponse(response);
+      handleResponse(response, method);
     };
 
     const init = () => {
@@ -114,9 +108,9 @@
 
       const updateName = (e) => {
         e.preventDefault();
-        requestUpdate(nameForm);
+        sendPost(nameForm);
         return false;
-      }
+      };
 
       const updateUser = (e) => {
         e.preventDefault();
@@ -158,5 +152,4 @@
   <section id="content">
   </section>
 </body>
-
 </html>

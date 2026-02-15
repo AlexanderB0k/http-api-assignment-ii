@@ -7,28 +7,71 @@ const responseHandler = require('./Responses.js');
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
-const urlStruct = {
-  '/': htmlHandler.getIndexResponse,
-  '/style.css': htmlHandler.getCSSResponse,
-  '/getUsers': responseHandler.getUsers,
-  'notFound': responseHandler.notFound,
-  notFound: responseHandler.notFound,
+const parseBody = (request, response, handler) => {
+  const body = [];
+
+  request.on('error', (err) => {
+    console.dir(err);
+    response.statusCode = 400;
+    response.end();
+  });
+
+  request.on('data', (chunk) => {
+    body.push(chunk);
+  });
+
+  request.on('end', () => {
+    const bodyString = Buffer.concat(body).toString();
+    const type = request.headers['content-type'];
+    if(type === 'application/x-www-form-urlencoded') {
+      request.body = query.parse(bodyString);
+    } else if (type === 'application/json') {
+      request.body = JSON.parse(bodyString);
+    } else {
+      response.writeHead(400, { 'Content-Type': 'application/json' });
+      response.write(JSON.stringify({ error: 'invalid data format' }));
+      return response.end();
+    }
+
+    handler(request, response);
+  });
 };
+
+const handlePost = (request, response, parsedUrl) => {
+  if (parsedUrl.pathname === '/addUser') {
+    parseBody(request, response, responseHandler.addUsers);
+  } else {
+    responseHandler.notFound(request, response);
+  }
+}
+
+const handleGet = (request, response, parsedUrl) => {
+  // route to correct method based on url
+  if (parsedUrl.pathname === '/style.css') {
+    htmlHandler.getCSSResponse(request, response);
+  } else if (parsedUrl.pathname === '/getUsers') {
+    responseHandler.getUsers(request, response)
+  } else if (parsedUrl.pathname === '/notReal'){
+    responseHandler.notFound(request, response);
+  }
+  else {
+    htmlHandler.getIndexResponse(request, response);
+  }
+};
+
 
 // function to handle requests
 const onRequest = (request, response) => {
-  // first we have to parse information from the url
   const protocol = request.connection.encrypted ? 'https' : 'http';
   const parsedUrl = new URL(request.url, `${protocol}://${request.headers.host}`);
 
-  // Then we route based on the path that the user went to
-  if (urlStruct[parsedUrl.pathname]) {
-    return urlStruct[parsedUrl.pathname](request, response);
+  if (request.method === 'POST') {
+    handlePost(request, response, parsedUrl);
+  } else if(request.method === 'GET') {
+    handleGet(request, response, parsedUrl);
+  } else {
+    responseHandler.notFound(request, response);
   }
-  else {
-    return urlStruct.notFound(request, response);
-  }
-
 };
 
 // start server
